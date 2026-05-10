@@ -18,10 +18,19 @@ Tuşlar:
 from __future__ import annotations
 
 import locale
-locale.setlocale(locale.LC_CTYPE, "C")
-
 import os
+import sys
 import warnings
+
+# Fedora/Turkish locale kombinasyonunda MediaPipe graph parser bozulabiliyor.
+# Bunu process başında C locale ile yeniden başlatarak sabitliyoruz.
+if os.environ.get("LC_ALL") != "C":
+    env = os.environ.copy()
+    env["LC_ALL"] = "C"
+    env.setdefault("LANG", "C")
+    os.execvpe(sys.executable, [sys.executable, *sys.argv], env)
+
+locale.setlocale(locale.LC_ALL, "C")
 os.environ.setdefault("QT_QPA_PLATFORM", "xcb")
 warnings.filterwarnings("ignore", category=UserWarning)
 

@@ -11,52 +11,48 @@ HAND_CONNECTIONS = [
     (5, 9), (9, 13), (13, 17),
 ]
 
-_vision = mp.tasks.vision
-_BaseOptions = mp.tasks.BaseOptions
+_hands = mp.solutions.hands
 
 
 class HandDetector:
     def __init__(self, task_path: str,
                  min_detection_confidence: float = 0.5,
                  min_presence_confidence: float = 0.5):
-        options = _vision.HandLandmarkerOptions(
-            base_options=_BaseOptions(model_asset_path=task_path),
-            running_mode=_vision.RunningMode.VIDEO,
-            num_hands=2,
-            min_hand_detection_confidence=min_detection_confidence,
-            min_hand_presence_confidence=min_presence_confidence,
+        # task_path korunuyor; API uyumu için argüman bırakıldı.
+        _ = task_path
+        self._detector = _hands.Hands(
+            static_image_mode=False,
+            max_num_hands=2,
+            model_complexity=1,
+            min_detection_confidence=min_detection_confidence,
             min_tracking_confidence=min_presence_confidence,
         )
-        self._landmarker = _vision.HandLandmarker.create_from_options(options)
-        self._ts = 0
 
     def _process(self, rgb_frame):
-        self._ts += 1
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-        return self._landmarker.detect_for_video(mp_image, self._ts)
+        return self._detector.process(rgb_frame)
 
     def detect(self, rgb_frame):
         """Return landmarks for the first detected hand, or None."""
         result = self._process(rgb_frame)
-        if not result.hand_landmarks:
+        if not result.multi_hand_landmarks:
             return None
-        return result.hand_landmarks[0]
+        return result.multi_hand_landmarks[0].landmark
 
     def detect_all(self, rgb_frame) -> list[tuple]:
         """Return list of (landmarks, handedness_label) for all detected hands."""
         result = self._process(rgb_frame)
-        if not result.hand_landmarks:
+        if not result.multi_hand_landmarks:
             return []
         hands = []
-        for i, lm in enumerate(result.hand_landmarks):
+        for i, lm in enumerate(result.multi_hand_landmarks):
             label = "Unknown"
-            if result.handedness and i < len(result.handedness):
-                label = result.handedness[i][0].category_name
-            hands.append((lm, label))
+            if result.multi_handedness and i < len(result.multi_handedness):
+                label = result.multi_handedness[i].classification[0].label
+            hands.append((lm.landmark, label))
         return hands
 
     def close(self):
-        self._landmarker.close()
+        self._detector.close()
 
     def __enter__(self):
         return self
