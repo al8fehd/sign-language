@@ -9,28 +9,46 @@ Bu proje kameradan el hareketlerini algılar:
 
 Ekranda anlık **komut** ve **FPS** gösterilir. İsterseniz aynı komutu UDP/TCP ile bir araca/robota da gönderebilirsiniz.
 
-## Kurulum (uv / Fedora 43)
+## Kurulum
+
+Linux ve Windows için geçerli bir Python sanal ortamı önerilir.
 
 ```bash
-uv python pin 3.12
-uv sync
+python -m venv .venv
+source .venv/bin/activate   # Linux/macOS
+# veya
+.\.venv\Scripts\activate  # Windows
+pip install -r requirements.txt
 ```
 
-## Çalıştırma
-
-Sadece ekranda gösterim:
+Eğer `uv` kullanmak isterseniz, proje kök dizininde aşağıdaki adımları uygulayın:
 
 ```bash
+cd /home/al8fehd/Belgeler/el
+uv sync
 uv run python main.py
 ```
 
-UDP ile komut gönder:
+Bu komutlar şunları yapar:
+
+- `uv sync`: proje bağımlılıklarını ve ortamı `uv` ile senkronize eder.
+- `uv run python main.py`: `uv` ortamı içinde `main.py` dosyasını çalıştırır.
+
+`uv` yüklü değilse veya doğrudan Python ile çalışmak isterseniz:
+
+```bash
+python main.py
+```
+
+Yerel `uv` kullanımı için daha fazla detay `RUN_WITH_UV.md` dosyasında yer alır.
+
+UDP ile komut göndermek için:
 
 ```bash
 uv run python main.py --send udp --host 192.168.1.50 --port 5005
 ```
 
-TCP ile komut gönder:
+TCP ile komut göndermek için:
 
 ```bash
 uv run python main.py --send tcp --host 192.168.1.50 --port 5005
@@ -46,7 +64,3 @@ uv run python main.py --send tcp --host 192.168.1.50 --port 5005
 - Komut metni tek satır ASCII olarak gönderilir: `STOP`, `FORWARD`, `LEFT`, `RIGHT`, `IDLE`
 - Gönderim, varsayılan olarak **komut değişince** yapılır (trafik azaltmak için).
 
-## Çalıştırma (hepsi kurulu ise)
-- `cd /home/al8fehd/Belgeler/vscode/sign-language
- uv sync
- uv run python main.py`
