@@ -64,3 +64,7 @@ uv run python main.py --send tcp --host 192.168.1.50 --port 5005
 - Komut metni tek satır ASCII olarak gönderilir: `STOP`, `FORWARD`, `LEFT`, `RIGHT`, `IDLE`
 - Gönderim, varsayılan olarak **komut değişince** yapılır (trafik azaltmak için).
 
+## Çalıştırma (hepsi kurulu ise)
+- `cd /home/al8fehd/Belgeler/vscode/sign-language
+ uv sync
+ uv run python main.py`
